@@ -1,0 +1,77 @@
+Phase 1: head to head
+the last 25% of the rounds...who has more on average?
+
+Phase 2: the top ten (at least) will be involved in a melee, in which all strategies compete
+the strategy with the highest average score will be deemed the winner
+
+Population of 100 individuals
+Up to 10,000 rounds (unless stable eqm. reached earlier)
+
+Each round involves:
+i. individuals sequentially choose a move until all have played
+ii. <deaths occur here> individuals reproduce with probabilities proportional to their average lifetime payoff
+iii. the environment changes
+
+individuals are dead they cannot reproduce...
+
+first round...two individuals should die yet no one can reproduce...
+
+the environment is a 'multi-arm bandit'
+100 possible acts, with the payoff for each act chosen at the start of each simulation
+the environment can be repreesnted as a 2 x 100 vector, then.  The first row is the "action" and the second row is the "payoff"...many small, only large
+
+mutations...to get the opposing strategy in!
+
+portfolio learning
+
+whenever the environment changes, the payoff for a given act will change
+most of the 100 acts will yield low payoffs, a few will yield high according to an unknown distribution
+
+the payoff of a given act with change with fixed probability p_c
+p_c will initially be fixed to a single value, but several matches will be run at different p_c values
+new payoffs are chosen from the same unknown distribution
+in the round-robin stage, p_c is a fixed value between 0.001 and 0.4, in the melee stage the value will vary from the same range
+for each action, 
+
+same distribution, 
+
+individuals are born naive - they have an empty repertoire
+
+There are 100 possible acts
+an individual has a repertoire of these acts it builds over time, storing both the action and the payoff
+
+Individuals have three possible moves:
+1. Innovate - new act selected from outside its current repertoire, learning that act and its payoff - trial and error learning...there's no R&D cost, that's just coded as -1...
+2. Observe - select another agent (who was an exploiter in the last round) learn their acts and acquire an estimate of the payoff...there is no cost to observation, but you don't get action payoff that round 
+n individuals are observed (as a parameter of the simulation)...in the pairwise it 1.  
+3. Exploit - perform a specificed act from the repertoire and get its true payoff
+
+Observe is open to two kinds of errors:
+- think you observe one act, but they are actually doing another act, and get that payoff instead. 
+The observed estimate of the payoff is error prone - with a fixed probability 0 to 0.5 the behavioral act returned by OBSERVE will NOT be that performed by the observed individual, but rather an act selected at random
+
+- estimating payoff value - epsilon - the returned payoff estimate will be \mu + \epsilon, where \mu is the actual payoff and \epsilon is normally distribude random variable rounded to the nearest integer, with a mean 0 and s.d. equal to a fixed value between 0 and 10
+
+
+
+
+pontus's fruit tree..you order all the payoffs you have seen...
+
+
+individuals die at random, with probability 0.02 per round (so an expected lifespan of 50 rounds).  They are replaced by the oppsirng of individuals selected to reproduced with probbality porortional to their mean lifetime payoffs.
+
+Thus for individual z, Pr(reproduction) = P_z / \sum_i P_i
+
+Unless mutation occurs, offspring inheret the strategy of their parents...mutation will occur randomly with probability 1/50...when mutation occurs, the offpsring will have a strategy randomly selected from others in the simulation
+
+The strategy, then, is how the individual organisms choose their moves.  The strategy has access to its own behavioral repertiour, in the form of a 2xn array (where n is the number of acts IN the repertior)...the first row is the act, and the second row is the associtaed payoff.    Individuals also know how long they've been alive, ...as they experience new payoffs, they can update the payoff row.  
+
+
+
+Each strategy is an M file.  It gets sent rounds_alive (first round alive gets sent 0), repertoire, and history.
+myRep stores (1) acts, and (2) payoffs.
+
+if 0, -1...
+
+
+
