@@ -1,7 +1,7 @@
 clear;
 clc;
 
-strategy=@switch_switch; % name the strategy you want to test
+strategy=@matt_strategy4; % name the strategy you want to test
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Strategy Debugger, v. 0.01                      %
