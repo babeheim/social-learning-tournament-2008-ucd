@@ -1,12 +1,16 @@
 
 
-
 %%%House-keeping:
 
 clc;                            % clears command screen
 clear;                          % clears all variables
 rand('state',sum(100*clock));   % resets random number generator
 randn('state',sum(100*clock));  % resets normal random number generator
+
+%%% You can input the strategies you want to compare here:
+
+strategy1=@brethalfhalf;
+strategy2=@experimenter;
 
 %%%These parameters are defined in the tournament rules:
 
@@ -15,31 +19,45 @@ number_of_rounds=1000;  %number of rounds
 environment_size=100;   %size of environment/number of different actions
 death_rate=0.02;        %rate of death (individuals/round)
 mutation_rate=0.02;     %rate of mutation (mutants/birth)
-settlement_time=100;    %number of rounds invaded strategy has to settle before invasion starts
+settlement_time=100;    %number of rounds invaded strategy has to settle before invastion starts
 
 %%%%Parameters used to run many simulations to find ultimate winner
-number_of_simulations=5;                              %total number of simulations run between two strategies for each invasion situation
-final_population_range=round(number_of_rounds/4);      %The number of rounds used to calculate the winning population
-%final_strat1_pop_vector=zeros(1,number_of_simulations); %Storage vector to track winner of each simulation
+number_of_simulations=5;                              
+%total number of simulations run between two strategies for each invasion situation
+final_population_range=round(number_of_rounds/4);      
+%The number of rounds used to calculate the winning population
 
-for s=1:2*number_of_simulations
+%%%Tracking vectors for output of randomly generated parameters at the end.
+prob_of_env_change_tracker=zeros(1,2*number_of_simulations);
+prob_observed_wrong_act_tracker=zeros(1,2*number_of_simulations);
+observe_error_stdv_tracker=zeros(1,2*number_of_simulations);
+final_strat1_pop_tracker=zeros(1,2*number_of_simulations);
+
+%%%Begins the simulations 
+for s=1:2*number_of_simulations %times two because each strategy gets to be the invader half the time
     
     disp(s) %displays the current simulation #
 
     %%%Parameters randomly generated at the beginning of each simulation:
 
-    environment=floor(abs(10*randn(1,environment_size)));   % this is an ad-hoc function giving some high and many low numbers.
-    %n_observe=1;                                            % set the number of individuals observed
-    prob_of_env_change_pc=0.399*rand+0.001;                 % select a random probability of environmental change (pc) (assumes a uniform distribution)
-    prob_observed_wrong_act=rand/2;                         % select a probability of misobserving which act was seen (assumes uniform distribution)
-    observe_error_stdv=10*rand;                             % selects standard deviation of the observation error rate (assumes uniform distribution)
+    environment=floor(abs(10*randn(1,environment_size)));   
+    % this is an ad-hoc function giving some high and many low numbers.
+    %n_observe=1;                                          
+    % set the number of individuals observed
+    prob_of_env_change_tracker(s)=0.399*rand+0.001;         
+    % select a random probability of environmental change (p_c) for this simulation
+    %(assumes a uniform distribution)
+    prob_observed_wrong_act_tracker(s)=rand/2;              
+    % select a probability of misobserving which act was seen (assumes uniform distribution)
+    observe_error_stdv_tracker(s)=10*rand;                 
+    % selects standard deviation of the observation error rate (assumes uniform distribution)
 
     %%%Initial storage vectors for each individual:
     
     if s <= number_of_simulations
         strategy_vector=ones(1,population_size);
     else
-        strategy_vector=zeros(1,population_size);
+        strategy_vector=zeros(1,population_size); 
     end
     
     round_alive_vector=zeros(1,population_size);
@@ -47,24 +65,24 @@ for s=1:2*number_of_simulations
     new_exploit=zeros(2,1); %records action and payoffs of exploiters in previous round
 
     for a=1:population_size
-        rep_storage{a}=zeros(2,1); %this will store the repertoires for each individual
-        hist_storage{a}=zeros(4,1); %this will store the history for each individual
+        rep_storage{a}=zeros(2,1); %#ok<AGROW> %this will store the repertoires for each individual
+        hist_storage{a}=zeros(4,1); %#ok<AGROW> %this will store the history for each individual
     end
 
         
-    %%%Start runnng rounds
+    %%%Start running rounds
     for r=1:number_of_rounds
         
         
         
-        if r-100*floor((r/100))==0
-            disp(r)
-        end
+       if r-(number_of_rounds/10)*floor((r/(number_of_rounds/10)))==0
+            disp(r) %here's where the output comes from
+       end
         
         
         prev_exploit=new_exploit; %takes exploit vector from last round and saves for use by observe
         new_exploit=zeros(2,1);   %resets the explout vector to zero
-        strat_tracker(r)=sum(strategy_vector); %this is just to plot the proportion of individuals at the end
+        strat_tracker(r)=sum(strategy_vector); %#ok<AGROW> %this is just to plot the proportion of individuals at the end
         
         %Individuals are selected sequentially to choose a move until all individuals have played. 
         
@@ -72,9 +90,11 @@ for s=1:2*number_of_simulations
         for b=1:population_size  %FOR EACH INDIVIDUAL
                
             if strategy_vector(b)==1    
-                [move,myRep]=switch_switch(round_alive_vector(b), rep_storage{b}, hist_storage{b}); %Calls one strategy
+                [move,myRep]=feval(strategy1, round_alive_vector(b), rep_storage{b}, hist_storage{b}); 
+                %Calls one strategy
             else
-                [move,myRep]=simple02(round_alive_vector(b), rep_storage{b}, hist_storage{b}); %Calls the other strategy
+                [move,myRep]=feval(strategy2, round_alive_vector(b), rep_storage{b}, hist_storage{b}); 
+                %Calls the other strategy
             end
 
    
@@ -86,12 +106,12 @@ for s=1:2*number_of_simulations
                     myRep=[pick;environment(pick)];
                     
                     round_alive_vector(b)=round_alive_vector(b)+1;
-                    rep_storage{b}=myRep;
+                    rep_storage{b}=myRep; %#ok<AGROW>
                     
                     if sum(hist_storage{b})==0
-                        hist_storage{b}=[round_alive_vector(b); move; myRep];
+                        hist_storage{b}=[round_alive_vector(b); move; myRep]; %#ok<AGROW>
                     else
-                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; myRep]];
+                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; myRep]]; %#ok<AGROW>
                     end
                 
                 
@@ -113,17 +133,17 @@ for s=1:2*number_of_simulations
                     round_alive_vector(b)=round_alive_vector(b)+1;
                 
                     %%%%%%%%%%%Update myRep%%%%%%%
-                    rep_storage{b}=[myRep, [new_action; environment(new_action)]]; %updates the repertoire
+                    rep_storage{b}=[myRep, [new_action; environment(new_action)]]; %#ok<AGROW> %updates the repertoire
 
                     %%%%%%%%%%%Update history%%%%%%%%
-                    hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; new_action; environment(new_action)]];
+                    hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; new_action; environment(new_action)]]; %#ok<AGROW>
                 
                 else
                     round_alive_vector(b)=round_alive_vector(b)+1;
                     
-                    hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; 0; 0]];
+                    hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; 0; 0]]; %#ok<AGROW>
                     
-                    rep_storage{b}=myRep;
+                    rep_storage{b}=myRep; %#ok<AGROW>
                     
                 end
             
@@ -138,16 +158,16 @@ for s=1:2*number_of_simulations
                     pick=ceil(rand*prev_exploit_size(2)); %picks a previous exploiter to observe
                 
                 
-                    if rand > prob_observed_wrong_act %checks if learner perceives the right action
+                    if rand > prob_observed_wrong_act_tracker(s) %checks if learner perceives the right action
                         percieved_action=prev_exploit(1,pick); %perceives the right action
                     else
                         percieved_action=ceil(rand*environment_size); %perceives some other action
                     end
                 
-                    percieved_payoff=abs(round(environment(prev_exploit(1,pick))+randn*observe_error_stdv)); %includes error terms, uses true action
+                    percieved_payoff=abs(round(environment(prev_exploit(1,pick))+randn*observe_error_stdv_tracker(s))); %includes error terms, uses true action
                                 
                 
-                    check_same=0; 
+                    check_in_rep=0; 
                     rep_size=size(myRep);
 
                     for x=1:rep_size(2)    %this loop checks if the percieved action is already in the repertoir                              
@@ -160,19 +180,19 @@ for s=1:2*number_of_simulations
                 
                 
                     if check_in_rep~=1
-                        myRep=[myRep, [percieved_action; percieved_payoff]]; %adds move to repertoir
+                        myRep=[myRep, [percieved_action; percieved_payoff]]; %#ok<AGROW> %adds move to repertoir
                     else
                         myRep(2,check_location)=percieved_payoff; %replaces old payoff for existing move with percieved payoff
                     end
                              
                     round_alive_vector(b)=round_alive_vector(b)+1; %updates the number of rounds alive
                 
-                    rep_storage{b}=myRep;
+                    rep_storage{b}=myRep; %#ok<AGROW>
                            
                     if sum(hist_storage{b})==0
-                        hist_storage{b}=[round_alive_vector(b); move; percieved_action; percieved_payoff];
+                        hist_storage{b}=[round_alive_vector(b); move; percieved_action; percieved_payoff]; %#ok<AGROW>
                     else
-                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; percieved_action; percieved_payoff]];
+                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; percieved_action; percieved_payoff]]; %#ok<AGROW>
                     end
                 
                 
@@ -181,12 +201,12 @@ for s=1:2*number_of_simulations
                     
                     round_alive_vector(b)=round_alive_vector(b)+1; %updates the number of rounds alive
                 
-                    rep_storage{b}=myRep;  %keeps the same repetoir
+                    rep_storage{b}=myRep;  %#ok<AGROW> %keeps the same repetoir
                                   
                     if sum(hist_storage{b})==0   %adds zeros to the history
-                        hist_storage{b}=[round_alive_vector(b); move; 0; 0];
+                        hist_storage{b}=[round_alive_vector(b); move; 0; 0]; %#ok<AGROW>
                     else
-                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; 0; 0]];
+                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; 0; 0]]; %#ok<AGROW>
                     end
                 
                 end
@@ -216,23 +236,23 @@ for s=1:2*number_of_simulations
                     myRep(2, check_location)=environment(move);%update repetoire with payoff
 
                     round_alive_vector(b)=round_alive_vector(b)+1; %increase age by one
-                    rep_storage{b}=myRep;  %store new repetoire
-                    hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; move; environment(move)]]; %store new history
+                    rep_storage{b}=myRep;  %#ok<AGROW> %store new repetoire
+                    hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; move; environment(move)]]; %#ok<AGROW> %store new history
                         
                     if sum(new_exploit)~=0 %new_exploit is used to track the actions and payoffs of the exploiters for observers in the next round
-                        new_exploit=[new_exploit, [move; environment(move)]]; 
+                        new_exploit=[new_exploit, [move; environment(move)]];  %#ok<AGROW>
                     else
                         new_exploit=[move; environment(move)];%this happens the first time an agent exploits in a round.
                     end
                 
                 else  %if it isn't in repertoire
                     round_alive_vector(b)=round_alive_vector(b)+1; %increase age by one
-                    rep_storage{b}=myRep;
+                    rep_storage{b}=myRep; %#ok<AGROW>
                 
                     if sum(hist_storage{b})==0
-                        hist_storage{b}=[round_alive_vector(b); move; 0; 0];
+                        hist_storage{b}=[round_alive_vector(b); move; 0; 0]; %#ok<AGROW>
                     else
-                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; 0; 0]];
+                        hist_storage{b}=[hist_storage{b}, [round_alive_vector(b); move; 0; 0]]; %#ok<AGROW>
                     end
                 
                 end
@@ -274,8 +294,8 @@ for s=1:2*number_of_simulations
                 end   
             
                 round_alive_vector(d)=0; %resets the rounds alive vector for newborn
-                rep_storage{d}=zeros(2,1); %resets the repertoires for newborn
-                hist_storage{d}=zeros(4,1); %resets the history for newborn
+                rep_storage{d}=zeros(2,1); %#ok<AGROW> %resets the repertoires for newborn
+                hist_storage{d}=zeros(4,1); %#ok<AGROW> %resets the history for newborn
                 payoff_vector(d)=0; %resets payoff vector for newborn
             end
         end
@@ -287,17 +307,20 @@ for s=1:2*number_of_simulations
 
 
         for e=1:environment_size
-            if rand < prob_of_env_change_pc
+            if rand < prob_of_env_change_tracker(s)
                 environment(e)=floor(abs(10*randn));
             end
         end
 
-       
-%%%%%%%%%%%%%%%%%%End of Round%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-    
-    
+        
+% stop here when doing it manually
+         
     end
     
+    
+ %%%%%%%%%%%%%%%%%%End of Rounds%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+ 
+    %%%Plotting
     if s <= number_of_simulations
         subplot(1,2,1)
         plot(strat_tracker)
@@ -313,30 +336,57 @@ for s=1:2*number_of_simulations
         ylabel('Number of Strategy 1 Individuals');
         hold on;
     end
-    
-    final_strat1_pop_vector(s)=mean(strategy_vector); %takes and stores population of strat 1 (averaged of last ## rounds)
+
+
+    final_strat1_pop_tracker(s)=mean(strat_tracker(number_of_rounds-final_population_range:number_of_rounds)); %takes and stores population of strat 1 (averaged of last ## rounds)  
+   
+    if mean(final_strat1_pop_tracker(s))>population_size/2      %Strategy 1 wins
+        winner_tracker{s}='Strategy 1';  %#ok<AGROW>
+    elseif mean(final_strat1_pop_tracker(s))==population_size/2 %Tie
+        winner_tracker{s}='Tie'; %#ok<AGROW>
+    else                                                        %Strategy 2 wins
+        winner_tracker{s}='Strategy 2'; %#ok<AGROW> 
+    end
     
 end
 
-if mean(final_strat1_pop_vector)>0.5
-    disp('Strategy 1 wins');
-elseif mean(final_strat1_pop_vector)==0.5
-    disp('Tie')
+%Calculate overall winner:
+mean_final_strat1_pop=mean(final_strat1_pop_tracker);
+
+if mean_final_strat1_pop > population_size/2     %strategy 1 wins
+    overall_winner='Strategy 1'; 
+elseif mean_final_strat1_pop==population_size/2 %Tie   
+    overall_winner='Tie';
 else
-    disp('Strategy 2 wins');
+    overall_winner='Strategy 2'; %strategy 2 wins
 end
+
+%Output Round Data and Overall Winner
+
+
+disp(sprintf('Round# \t Prob Env Change \t Prob Obs Wrong \t Obs Error Stdv \t Strat1 Pop \t Winner'));
+for s2=1:2*number_of_simulations
+    disp(sprintf('%d \t \t %0.2f  \t \t \t \t %0.2f \t \t \t \t %0.2f \t \t \t \t %0.2f \t \t \t %s', s2, prob_of_env_change_tracker(s2),prob_observed_wrong_act_tracker(s2),observe_error_stdv_tracker(s2), final_strat1_pop_tracker(s2),winner_tracker{s2}));
+end
+
+disp(sprintf('\n'));
+disp(sprintf('\n'));
+disp(sprintf('Winner Average Pop \t Overall Winner'));
+
+if mean_final_strat1_pop > population_size/2
+    disp(sprintf('%0.2f \t \t \t \t %s', mean_final_strat1_pop, overall_winner));
+elseif mean_final_strat1_pop < population_size/2
+    disp(sprintf('%0.2f \t \t \t \t %s', population_size-mean_final_strat1_pop, overall_winner));
+else
+    disp(sprintf('TIE!!!'));
+end
+     
 
 subplot(1,2,1)
 hold off;
 subplot(1,2,2)
 hold off;
 
-%for x=1:population_size
-    
-%    reptest=rep_storage{x}
-%    histtest=hist_storage{x}
-    
-%end
 
     
     
