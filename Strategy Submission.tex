@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[pdftex]{graphicx}
+%\usepackage{subfigure}
+\usepackage{amsmath,amssymb,amsthm}
+%\usepackage{rotating}
+\usepackage[usenames]{color}
+%\usepackage{doublespace}
+%\usepackage{fullpage}
+%\usepackage[nolists,tablesfirst]{endfloat}
+
+%\bibpunct[, ]{(}{)}{,}{a}{}{,}
+
+\title{Strategy w00t}
+\author{Matthew Zimmerman, Ryan Boyko, Paul Smaldino,\\ Bret A. Beheim
+\footnote{corresponding entrant, 1-805-455-1139, beheim@gmail.com} , Adrian Bell, and Corin Boyko\\ \; \\The University of California, Davis}
+\date{\today}
+
+\begin{document}
+\setlength{\parindent}{20pt}
+
+\maketitle
+
+
+\textbf{Description:}
+Our strategy, w00t\footnote{spelled ``w zero zero t'', pronounced ``woot''}, follows the general pattern of socially learning two actions and exploiting the one with the highest expected payoff.  Thus, it only pays learning costs for (generally) the first two turns, until it has two actions in its repertoire.  
+
+Our strategy acquires these two actions by observation, on the premise that (a) in low $p_c$ environments w00t will be playing with ``good'' strategies that reliably converge on actions with a payoff greater than the mean, while (b) in environments with high $p_c$, learning socially is at least as good as individually innovating, since each action's payoff changes frequently.
+ 
+	To determine which of the two actions to exploit, and when to switch to the other, w00t calculates the expected payoff of each action in the repertoire each turn, and exploits the highest of these expectations.  For an action $A$ with payoff $V_A$, this is calculated via  
+	\[(V_A-M)s^{n-1}
+\]
+	where $M$ is the estimated mean value of the payoff distribution, $s$ is the probability the environment will \textit{not} change, $1-p_c$, and $n$ is the number of rounds that have elapsed since the w00t agent last played that action.  Both the mean and the probability of environmental change are estimated from the agent's history.  Note that the mean is calculated using only unique payoff-action pairs in the agent's history.
+
+Although this basic pattern is at the heart of our strategy, there are three important exceptions w00t makes, contingent upon certain environmental conditions.\\
+
+\textbf{Contingency I:} The first contingency, which we are calling ``Plan C'', is for situations when both actions in the repertoire dip below estimated average payoff from the distribution.  We reason that it can sometimes make sense to pay the cost of learning additional actions rather than continue to alternate between two strategies with low payoffs.  
+Intuitively, this cost-benefit ratio depends on two values: (a) the magnitude of the difference between the best payoff in the agent's repertoire compared to the estimated mean payoff, and (b) the frequency that payoffs change, $p_c$.  We use the rule that if the best expected payoff we can get from any strategy in our repertoire is below our estimate of the mean payoff, w00t will socially learn an additional strategy with probability  
+	\[1 - \Big[0.5\Big(\frac{p_c}{0.4}\Big)+0.5\Big(\frac{E(B)}{M}\Big)\Big]
+\]
+where $E(B)$ is the best expected payoff in the strategy's repertoire. 
+
+We restrict the "Plan C" contingency to apply only after seventh round, since before then the $p_c$ estimate is too unreliable and the costs of premature action seem to outweigh the benefits.
+
+
+\textbf{Contingency II:} A second potential problem with the basic w00t strategy is that when the population within the simulation has converged upon exploiting a single action, our  strategy can ``get stuck'' trying to learn a second action over and over again with none available.
+
+Assuming that the convergence will generally be on high-payoff actions, we solve this problem by simply exploiting that action when it observed twice in a row at the beginning of a agent's lifetime.  Unfortunately, this does not allow the w00t agent to properly estimate the mean payoff in the payoff distribution, so the agent then follows the simple rule of innovating as soon as the payoff for the lone action decreases. This provides a second action, at which point the agent then follows the normal strategy outlined above.  
+
+\textbf{Contingency III:} Finally, since all w00t agents play observe at the beginning of their lives, none of them will acquire an action at the beginning of a simulation made up entirely of w00t.  To correct this, in situations where the first `observe' returns nothing, our strategy innovates twice to get two actions in its repertoire, and then begins playing the regular pattern outlined above.\\
+
+
+For technical details, please refer to the attached w00t psuedocode or the Matlab .m file.\\
+
+  
+
+\textbf{We, the undersigned, hereby accept the rules as outlined in the ``Rules for Entry''.}\\
+
+\noindent\textbf{Matthew Zimmerman}\\
+\textbf{Ryan Boyko}\\
+\textbf{Paul Smaldino}\\
+\textbf{Bret Beheim}\footnote{corresponding entrant, 1-805-455-1139, beheim@gmail.com}\\
+\textbf{Adrian Bell}\\
+\textbf{Corin Boyko}\\
+
+
+\begin{verbatim}
+
+w00t! Psuedocode
+
+1. If it's the first round (roundsAlive = 0); then OBSERVE
+2. Else if myRepertoire contains one action AND there are more 
+than one column in myHistory AND the third row, first column of 
+myHistory is NOT zero.
+	A. If the last payoff from the last move is less than the 
+	   payoff from the previous move, then INNOVATE.
+	B. Else EXPLOIT the action in myRepertoire.
+3. Else if myRepertoire contains < 2 actions AND the third row, 
+first column of myHistory = 0; then INNOVATE
+4. Else if myRepertoire contains < 2 actions; then OBSERVE
+5. Else:
+	(Estimate frequency of environmental change (p_c))
+	A. For every round in the MyHistory (except the last):
+		i. If the round was innovate or exploit and the action 
+		innovated/exploited is the same as in the next round, count 
+		it as a RepeatMove
+		iii. If the conditions in (i) are met and the payoff changes, 
+		count it as an environmental change
+  B. Calculate p_c as the number of repeat moves / number of 
+    environmental changes
+  C. If there were no repeat moves, estimate p_c as 0.2
+  D. If the estimated p_c < 0.001, estimate p_c as 0.001
+  E. If the estimated p_c > 0.4, estimate p_c as 0.4
+	
+	(Estimate the mean environmental payoff)
+	F. For each action in MyRep:
+		i. Find the elements of MyHistory [row 2] that contain 
+		  the action (only exploits)
+		ii. If there are no exploits with the action, count it 
+		  as a UniqueValue and add the payoff from the repertoire 
+		  to a running total of the uniquePayoffs 
+		iii. Else (if condition in 5.A.i.b. isn't met) then:
+			a. add payoff from first exploit of the action to the running 
+			uniquePayoffs total and count it as a UniqueValue
+			b. for each additional exploit of that action add the payoff 
+			to the running uniquePayoffs only if the payoff changed between 
+			that exploit and the previous exploit of that action and count 
+			it as a UniqueValue
+    	G. Calculate an estimated mean by dividing the uniquePayoffs by 
+    	the UniqueValues
+
+	(Decide whether to switch strategies and what to swith to)
+	H. If (the last two actions were different [last two values in row 
+	three of MyHistory]) OR (the payoff decreased from the last two moves 
+	[last two values in row four of MyHistory])
+		i. For each action in MyRep:
+			a. Calculate the time since the action was last innovated or exploited (t)
+			b. Calculate the value of the following equation: (P-M)(1-p_c)^t
+			(P = payoff for the action in MyRep; M = estimated mean from 5.B.; p_c = 
+			estimated environmental change from 1.B-E.; t = t from 5.C.i.a.)
+		ii. EXPLOIT the action corresponding to the highest value from  C.i.b. 
+		(if there is a tie pick the first one)
+		iii. Calculate an expected payoff as: (P-M)-(1-p_c)^(t+1)+M for 
+		the exploited action
+
+	I. Else 
+		i. EXPLOIT the same action as the turn before
+		ii. Calculate an expected payoff as: (P-M)-(1-p_c)^(t+1)+M for 
+		the exploited action
+	
+
+	(Decide wether to learn again)
+	J. If roundsAlive > 7 and the expected payoff (from H.iii or I.ii.) 
+	is less than the estimated mean payoff (from G.)
+		i .  If the estimated mean payoff = 0; OBSERVE
+		ii. Else OBSERVE with a probability equal to 
+		    1-(.5*(exp_payoff/est_mean_payoff) + .5*(est_env_change/.4))
+
+\end{verbatim}
+
+
+\end{document}
