@@ -5,7 +5,7 @@
 %%%%observing the wrong action and the standard deviation of the
 %%%%observation error
 
-function [mean_final_strat1_pop, overall_winner]=rr_tournament_9(prob_of_env_change, prob_observed_wrong_act, observe_error_stdv, strategy1, strategy2)
+function [mean_final_strat1_pop, mean_final_strat2_pop]=rr_tournament_10(prob_of_env_change, prob_observed_wrong_act, observe_error_stdv, strategy1, strategy2)
 
 strategy1_str=func2str(strategy1);
 strategy2_str=func2str(strategy2);
@@ -415,6 +415,8 @@ elseif mean_final_strat1_pop < population_size/2
 else
     disp(sprintf('TIE!!!'));
 end
+
+mean_final_strat2_pop=population_size-mean_final_strat1_pop;
 
 
 %subplot(1,2,1)
