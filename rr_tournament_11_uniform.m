@@ -5,7 +5,7 @@
 %%%%observing the wrong action and the standard deviation of the
 %%%%observation error
 
-function [mean_final_strat1_pop, mean_final_strat2_pop]=rr_tournament_10(prob_of_env_change, prob_observed_wrong_act, observe_error_stdv, strategy1, strategy2)
+function [mean_final_strat1_pop, mean_final_strat2_pop]=rr_tournament_11_uniform(prob_of_env_change, prob_observed_wrong_act, observe_error_stdv, strategy1, strategy2)
 
 strategy1_str=func2str(strategy1);
 strategy2_str=func2str(strategy2);
@@ -47,7 +47,7 @@ for s=1:2*number_of_simulations
 
     %%%Parameters randomly generated at the beginning of each simulation:
 
-    environment=round(abs(10*randn(1,environment_size)));   % this is an ad-hoc function giving some high and many low numbers.
+    environment=ceil(16*rand(1,environment_size));   % this is a uniform distribution.
     %n_observe=1;                                           % set the number of individuals observed
 
    
@@ -338,7 +338,7 @@ for s=1:2*number_of_simulations
 
         for e=1:environment_size
             if rand < prob_of_env_change
-                environment(e)=floor(abs(10*randn));
+                environment(e)=ceil(16*rand); %uniform distribution
             end
         end
                 

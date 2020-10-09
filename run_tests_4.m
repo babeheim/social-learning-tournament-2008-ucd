@@ -1,0 +1,35 @@
+function run_tests_4()
+
+    rr_tournament_11(.001,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11(.01,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11(.1,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11(.15,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11(.2,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11(.3,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11(.4,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+
+    rr_tournament_11_exp(.001,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_exp(.01,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_exp(.1,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_exp(.15,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_exp(.2,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_exp(.3,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_exp(.4,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    
+    rr_tournament_11_uniform(.001,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_uniform(.01,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_uniform(.1,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_uniform(.15,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_uniform(.2,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_uniform(.3,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_uniform(.4,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    
+    rr_tournament_11_hi_skew(.001,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_hi_skew(.01,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_hi_skew(.1,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_hi_skew(.15,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_hi_skew(.2,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_hi_skew(.3,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    rr_tournament_11_hi_skew(.4,.25,5,@woot_magic_trigger_pc_learn_75_25_no_lim,@woot_magic_trigger_pc_learn_75_25)
+    
+end
